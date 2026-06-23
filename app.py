@@ -6,7 +6,7 @@ from datetime import datetime
 import io
 import pytz
 
-import pytz
+BOGOTA = pytz.timezone("America/Bogota")
 
 st.set_page_config(
     page_title="CHICANEROS",
