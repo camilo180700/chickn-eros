@@ -4,6 +4,9 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import io
+import pytz
+
+import pytz
 
 st.set_page_config(
     page_title="CHICANEROS",
@@ -66,9 +69,10 @@ def cargar_ventas():
 
 def registrar_orden(carrito):
     sheet = get_sheet()
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    hora  = datetime.now().strftime("%H:%M:%S")
-    orden_id = datetime.now().strftime("%Y%m%d%H%M%S")
+    ahora = datetime.now(BOGOTA)
+fecha = ahora.strftime("%Y-%m-%d")
+hora  = ahora.strftime("%H:%M:%S")
+orden_id = ahora.strftime("%Y%m%d%H%M%S")
     for item in carrito:
         sheet.append_row([
             orden_id, fecha, hora,
