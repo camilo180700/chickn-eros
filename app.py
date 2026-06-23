@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-import os
+import gspread
+from google.oauth2.service_account import Credentials
 from datetime import datetime
 
 st.set_page_config(
@@ -23,19 +24,42 @@ MENU = {
     "Fries":                      {"categoria": "Acompanamiento", "precio": 7000},
 }
 
-CSV_PATH = "ventas.csv"
+HEADERS = ["Fecha", "Hora", "Producto", "Categoria",
+           "Cantidad", "Precio Unitario", "Total"]
+
+@st.cache_resource
+def get_client():
+    credentials = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+    )
+    return gspread.authorize(credentials)
+
+def get_sheet():
+    client = get_client()
+    return client.open("CHICANEROS_ventas").sheet1
 
 def cargar_ventas():
-    if os.path.exists(CSV_PATH):
-        return pd.read_csv(CSV_PATH)
-    return pd.DataFrame(columns=[
-        "Fecha", "Hora", "Producto", "Categoria",
-        "Cantidad", "Precio Unitario", "Total"
-    ])
+    sheet = get_sheet()
+    data = sheet.get_all_records()
+    if data:
+        return pd.DataFrame(data)
+    return pd.DataFrame(columns=HEADERS)
 
-def guardar_venta(df):
-    df.to_csv(CSV_PATH, index=False)
+def agregar_venta(fila):
+    sheet = get_sheet()
+    sheet.append_row(list(fila.values()))
 
+def eliminar_ultimo():
+    sheet = get_sheet()
+    ultima_fila = len(sheet.get_all_values())
+    if ultima_fila > 1:
+        sheet.delete_rows(ultima_fila)
+
+# ── UI ──────────────────────────────────────────────────────────────
 st.title("CHICANEROS — Registro de Ventas")
 
 tab1, tab2, tab3 = st.tabs(["Nueva Venta", "Historial", "Resumen"])
@@ -55,7 +79,6 @@ with tab1:
     st.markdown(f"**Precio unitario:** ${precio_unitario:,.0f}  |  **Total:** ${total:,.0f}")
 
     if st.button("Registrar Venta", use_container_width=True):
-        df = cargar_ventas()
         nueva_fila = {
             "Fecha":           datetime.now().strftime("%Y-%m-%d"),
             "Hora":            datetime.now().strftime("%H:%M:%S"),
@@ -65,8 +88,7 @@ with tab1:
             "Precio Unitario": precio_unitario,
             "Total":           total,
         }
-        df = pd.concat([df, pd.DataFrame([nueva_fila])], ignore_index=True)
-        guardar_venta(df)
+        agregar_venta(nueva_fila)
         st.success(f"Registrado: {cantidad}x {producto} — ${total:,.0f}")
         st.rerun()
 
@@ -84,9 +106,7 @@ with tab2:
         st.markdown(f"### Total del periodo: ${df_filtrado['Total'].sum():,.0f}")
 
         if st.button("Eliminar ultimo registro"):
-            df_full = cargar_ventas()
-            df_full = df_full.iloc[:-1]
-            guardar_venta(df_full)
+            eliminar_ultimo()
             st.warning("Ultimo registro eliminado.")
             st.rerun()
 
@@ -106,7 +126,6 @@ with tab3:
             st.metric("Dias con ventas", df["Fecha"].nunique())
 
         st.markdown("---")
-
         st.markdown("#### Productos mas vendidos")
         top = df.groupby("Producto")["Cantidad"].sum().sort_values(ascending=False).reset_index()
         top.columns = ["Producto", "Unidades Vendidas"]
