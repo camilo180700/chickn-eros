@@ -70,9 +70,9 @@ def cargar_ventas():
 def registrar_orden(carrito):
     sheet = get_sheet()
     ahora = datetime.now(BOGOTA)
-fecha = ahora.strftime("%Y-%m-%d")
-hora  = ahora.strftime("%H:%M:%S")
-orden_id = ahora.strftime("%Y%m%d%H%M%S")
+    fecha = ahora.strftime("%Y-%m-%d")
+    hora  = ahora.strftime("%H:%M:%S")
+    orden_id = ahora.strftime("%Y%m%d%H%M%S")
     for item in carrito:
         sheet.append_row([
             orden_id, fecha, hora,
