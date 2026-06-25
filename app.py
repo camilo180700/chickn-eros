@@ -27,15 +27,24 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 MENU = {
+    # ── Combos clásicos ──────────────────────────────────────────
     "Combo Ego (Tenders x2)":     {"categoria": "Combo",          "precio": 20000},
     "Combo Petalo (Tenders x4)":  {"categoria": "Combo",          "precio": 30000},
     "Combo Panas (Tenders x8)":   {"categoria": "Combo",          "precio": 55000},
     "Combo Family (Tenders x12)": {"categoria": "Combo",          "precio": 80000},
+    # ── Menu Mundialista ─────────────────────────────────────────
+    "La Dupla (2 personas)":          {"categoria": "Mundialista",    "precio": 45000},
+    "La Barra (4 personas)":          {"categoria": "Mundialista",    "precio": 70000},
+    "La Gallada Futbolera (6 pers.)": {"categoria": "Mundialista",    "precio": 100000},
+    # ── Bebidas ──────────────────────────────────────────────────
     "Drinks (Coca-Cola)":         {"categoria": "Bebida",         "precio": 6000},
+    # ── Especialidades ───────────────────────────────────────────
     "Tender Dog":                 {"categoria": "Especialidad",   "precio": 15000},
     "Chickn Fries Personal":      {"categoria": "Especialidad",   "precio": 25000},
     "Chickn Fries Grande":        {"categoria": "Especialidad",   "precio": 35000},
+    # ── Individual ───────────────────────────────────────────────
     "Tenders x2":                 {"categoria": "Individual",     "precio": 12000},
+    # ── Adicionales ──────────────────────────────────────────────
     "Vaso de Salsa":              {"categoria": "Adicional",      "precio": 6500},
     "Fries":                      {"categoria": "Acompanamiento", "precio": 7000},
 }
